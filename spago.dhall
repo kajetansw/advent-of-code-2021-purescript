@@ -14,8 +14,11 @@ to generate this file without the comments in this block.
 , dependencies =
   [ "console"
   , "effect"
+  , "node-buffer"
+  , "node-fs"
   , "prelude"
   , "psci-support"
+  , "strings"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
