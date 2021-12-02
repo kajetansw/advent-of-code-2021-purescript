@@ -1,4 +1,4 @@
-module Ex1 (runEx1) where
+module Ch1 (runCh1) where
 
 import Prelude
 
@@ -47,7 +47,7 @@ toDepthMeasurements = go Nothing Nil
 countIncreases :: List Depth -> Int
 countIncreases measurements = foldl (\acc curr -> if curr.change == Increase then acc + 1 else acc) 0 measurements
 
-runEx1 :: Effect Unit
-runEx1 = do
+runCh1 :: Effect Unit
+runCh1 = do
   fileContent <- getFileContent
   log $ show $ countIncreases $ toDepthMeasurements $ toDepths fileContent

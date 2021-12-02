@@ -4,11 +4,14 @@ import Prelude
 
 import Effect (Effect)
 import Effect.Console (log)
-import Ex1 (runEx1)
+import Ch1 (runCh1)
+import Ch2 (runCh2)
 
 main :: Effect Unit
 main = do
   log "--------------"
-  log "Exercise 1"
+  log "Challenge 1:"
+  runCh1
   log "--------------"
-  runEx1
+  log "Challenge 2:"
+  runCh2
