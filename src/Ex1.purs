@@ -2,7 +2,7 @@ module Ex1 (runEx1) where
 
 import Prelude
 
-import Data.List (List(..), fromFoldable, head, tail, mapMaybe, snoc)
+import Data.List (List(..), fromFoldable, mapMaybe, snoc)
 import Data.Foldable (foldl)
 import Data.String (split)
 import Data.Maybe (Maybe(..))
@@ -15,6 +15,7 @@ import Node.FS.Sync (readTextFile)
 import Data.List.Types (List)
 
 data DepthChange = Decrease | NotChanged | Increase
+
 derive instance eqDepthChange :: Eq DepthChange
 
 type Depth =
@@ -32,21 +33,16 @@ toList = fromFoldable
 toDepths :: String -> List Int
 toDepths text = mapMaybe fromString (toList $ split (Pattern "\n") text)
 
--- TODO find a way to write it cleaner
 toDepthMeasurements :: List Int -> List Depth
-toDepthMeasurements depths = go Nothing Nil depths
+toDepthMeasurements = go Nothing Nil
   where
   go :: Maybe Int -> List Depth -> List Int -> List Depth
-  go previous measurements ds =
-    case head ds of
-      Just d -> case previous of
-        Just prev -> case tail ds of
-          Just rest -> go (Just d) (snoc measurements { measurement: d, change: if d < prev then Decrease else Increase }) rest
-          Nothing -> measurements
-        Nothing -> case tail ds of
-          Just rest -> go (Just d) (snoc measurements { measurement: d, change: NotChanged }) rest
-          Nothing -> measurements
-      Nothing -> measurements
+  go previous measurements depths =
+    case depths of
+      Nil -> measurements
+      Cons d ds -> case previous of
+        Nothing -> go (Just d) (snoc measurements { measurement: d, change: NotChanged }) ds
+        Just prev -> go (Just d) (snoc measurements { measurement: d, change: if d < prev then Decrease else Increase }) ds
 
 countIncreases :: List Depth -> Int
 countIncreases measurements = foldl (\acc curr -> if curr.change == Increase then acc + 1 else acc) 0 measurements
