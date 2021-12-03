@@ -37,15 +37,18 @@ sum :: List Int -> Int
 sum = foldl (\x y -> x + y) 0
 
 -- TODO how to prevent from using non-positive integer as input?
-toFramedDepths :: Int -> List Int -> List Int
-toFramedDepths = go { lastDepths: Nil, framedDepths: Nil }
+nwise :: forall a. Int -> List a -> List (List a)
+nwise = go { lastElem: Nil, result: Nil }
   where
-  go :: { lastDepths :: List Int, framedDepths :: List Int } -> Int -> List Int -> List Int
-  go { framedDepths, lastDepths } _ Nil = snoc framedDepths (sum lastDepths)
-  go { lastDepths: Nil, framedDepths } maxFrame (depth : depths) = go { lastDepths: snoc Nil depth, framedDepths: framedDepths } maxFrame depths
-  go { lastDepths: lastDepths@(_ : lds), framedDepths } maxFrame (depth : depths)
-    | (length lastDepths) < maxFrame = go { lastDepths: snoc lastDepths depth, framedDepths: framedDepths } maxFrame depths
-    | otherwise = go { lastDepths: snoc lds depth, framedDepths: snoc framedDepths (sum lastDepths) } maxFrame depths
+  go :: forall b. { lastElem :: List b, result :: List (List b) } -> Int -> List b -> List (List b)
+  go { lastElem, result } _ Nil = snoc result lastElem
+  go { lastElem: Nil, result } maxCount (x : xs) = go { lastElem: snoc Nil x, result: result } maxCount xs
+  go { lastElem: lastElem@(_ : les), result } maxCount (x : xs)
+    | (length lastElem) < maxCount = go { lastElem: snoc lastElem x, result: result } maxCount xs
+    | otherwise = go { lastElem: snoc les x, result: snoc result lastElem } maxCount xs
+
+toFramedDepths :: List Int -> List Int
+toFramedDepths list = map (\x -> sum x) (nwise 3 list)
 
 toDepthMeasurements :: List Int -> List Depth
 toDepthMeasurements = go Nothing Nil
@@ -59,7 +62,7 @@ toDepthMeasurements = go Nothing Nil
         Just prev -> go (Just d) (snoc measurements { measurement: d, change: if d > prev then Increase else Decrease }) ds
 
 countIncreases :: List Depth -> Int
-countIncreases measurements = foldl (\acc curr -> if curr.change == Increase then acc + 1 else acc) 0 measurements
+countIncreases = foldl (\acc curr -> if curr.change == Increase then acc + 1 else acc) 0
 
 runCh1 :: Effect Unit
 runCh1 = do
@@ -67,4 +70,4 @@ runCh1 = do
   log "Part 1:"
   log $ show $ countIncreases $ toDepthMeasurements $ toDepths fileContent
   log "Part 2:"
-  log $ show $ countIncreases $ toDepthMeasurements $ toFramedDepths 3 $ toDepths fileContent
+  log $ show $ countIncreases $ toDepthMeasurements $ toFramedDepths $ toDepths fileContent
