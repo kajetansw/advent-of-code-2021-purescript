@@ -2,7 +2,6 @@ module Ch2 (runCh2) where
 
 import Prelude
 
-
 import Effect (Effect)
 import Effect.Console (log)
 

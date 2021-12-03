@@ -9,9 +9,10 @@ import Ch2 (runCh2)
 
 main :: Effect Unit
 main = do
-  log "--------------"
+  log "----------------"
   log "Challenge 1:"
   runCh1
-  log "--------------"
+  log "----------------"
   log "Challenge 2:"
   runCh2
+  log "----------------"
