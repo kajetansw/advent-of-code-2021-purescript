@@ -3,6 +3,7 @@ module Ch1 (runCh1) where
 import Prelude
 
 import Data.List (List(..), fromFoldable, mapMaybe, snoc, (:), length, singleton)
+import Data.Tuple.Nested (Tuple3(..), tuple3, (/\))
 import Data.Foldable (foldl)
 import Data.String (split)
 import Data.Maybe (Maybe(..))
@@ -33,26 +34,16 @@ toList = fromFoldable
 toDepths :: String -> List Int
 toDepths text = mapMaybe fromString (toList $ split (Pattern "\n") text)
 
-sum :: List Int -> Int
-sum = foldl (\x y -> x + y) 0
+sumTuple3 :: Tuple3 Int Int Int -> Int
+sumTuple3 (x0 /\ x1 /\ x2 /\ _) = x0 + x1 + x2
 
--- TODO how to prevent from using non-positive integer as input?
--- | Groups elements of a input list into lists containing an element and `(n-1)` previous elements,
--- | where `n` is provided length of the group provided as an argument. 
--- |
--- | Think of a `pairwise` function, but instead providing pairs, it provides lists of length of `n`.
-nwise :: forall a. Int -> List a -> List (List a)
-nwise = go { lastElem: Nil, result: Nil }
-  where
-  go :: forall b. { lastElem :: List b, result :: List (List b) } -> Int -> List b -> List (List b)
-  go { lastElem, result } _ Nil = snoc result lastElem
-  go { lastElem: Nil, result } maxCount (x : xs) = go { lastElem: singleton x, result: result } maxCount xs
-  go { lastElem: lastElem@(_ : les), result } maxCount (x : xs)
-    | (length lastElem) < maxCount = go { lastElem: snoc lastElem x, result: result } maxCount xs
-    | otherwise = go { lastElem: snoc les x, result: snoc result lastElem } maxCount xs
+toGroupsOfThree :: forall a. List a -> List (Tuple3 a a a)
+toGroupsOfThree (x0 : (x1 : (x2 : xs))) = (tuple3 x0 x1 x2) : (toGroupsOfThree (x1 : (x2 : xs))) 
+toGroupsOfThree (x : xs) = toGroupsOfThree xs
+toGroupsOfThree Nil = Nil
 
-toFramedDepths :: List Int -> List Int
-toFramedDepths list = map (\x -> sum x) (nwise 3 list)
+toWindowedDepths :: List Int -> List Int
+toWindowedDepths list = map (\x -> sumTuple3 x) (toGroupsOfThree list)
 
 toDepthMeasurements :: List Int -> List Depth
 toDepthMeasurements = go Nothing Nil
@@ -74,4 +65,4 @@ runCh1 = do
   log "Part 1:"
   log $ show $ countIncreases $ toDepthMeasurements $ toDepths fileContent
   log "Part 2:"
-  log $ show $ countIncreases $ toDepthMeasurements $ toFramedDepths $ toDepths fileContent
+  log $ show $ countIncreases $ toDepthMeasurements $ toWindowedDepths $ toDepths fileContent
