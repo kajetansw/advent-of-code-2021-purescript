@@ -38,7 +38,7 @@ sumTuple3 :: Tuple3 Int Int Int -> Int
 sumTuple3 (x0 /\ x1 /\ x2 /\ _) = x0 + x1 + x2
 
 toGroupsOfThree :: forall a. List a -> List (Tuple3 a a a)
-toGroupsOfThree (x0 : (x1 : (x2 : xs))) = (tuple3 x0 x1 x2) : (toGroupsOfThree (x1 : (x2 : xs))) 
+toGroupsOfThree (x0 : (x1 : (x2 : xs))) = (tuple3 x0 x1 x2) : (toGroupsOfThree (x1 : (x2 : xs)))
 toGroupsOfThree (x : xs) = toGroupsOfThree xs
 toGroupsOfThree Nil = Nil
 
