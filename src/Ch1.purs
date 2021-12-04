@@ -2,7 +2,7 @@ module Ch1 (runCh1) where
 
 import Prelude
 
-import Data.List (List(..), fromFoldable, mapMaybe, snoc, (:), length)
+import Data.List (List(..), fromFoldable, mapMaybe, snoc, (:), length, singleton)
 import Data.Foldable (foldl)
 import Data.String (split)
 import Data.Maybe (Maybe(..))
@@ -37,12 +37,16 @@ sum :: List Int -> Int
 sum = foldl (\x y -> x + y) 0
 
 -- TODO how to prevent from using non-positive integer as input?
+-- | Groups elements of a input list into lists containing an element and `(n-1)` previous elements,
+-- | where `n` is provided length of the group provided as an argument. 
+-- |
+-- | Think of a `pairwise` function, but instead providing pairs, it provides lists of length of `n`.
 nwise :: forall a. Int -> List a -> List (List a)
 nwise = go { lastElem: Nil, result: Nil }
   where
   go :: forall b. { lastElem :: List b, result :: List (List b) } -> Int -> List b -> List (List b)
   go { lastElem, result } _ Nil = snoc result lastElem
-  go { lastElem: Nil, result } maxCount (x : xs) = go { lastElem: snoc Nil x, result: result } maxCount xs
+  go { lastElem: Nil, result } maxCount (x : xs) = go { lastElem: singleton x, result: result } maxCount xs
   go { lastElem: lastElem@(_ : les), result } maxCount (x : xs)
     | (length lastElem) < maxCount = go { lastElem: snoc lastElem x, result: result } maxCount xs
     | otherwise = go { lastElem: snoc les x, result: snoc result lastElem } maxCount xs
